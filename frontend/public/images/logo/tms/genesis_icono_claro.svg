@@ -1,0 +1,59 @@
+<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="ic1"><rect x="0" y="0" width="400" height="400" rx="80"/></clipPath>
+  </defs>
+  <rect x="0" y="0" width="400" height="400" rx="80" fill="#FFFFFF" stroke="#2E7FB8" stroke-width="3"/>
+  <rect x="0" y="0" width="400" height="22" fill="#2E7FB8" clip-path="url(#ic1)"/>
+  <rect x="0" y="378" width="400" height="22" fill="#2E7FB8" clip-path="url(#ic1)"/>
+  <!-- Camión escalado y centrado -->
+  <g transform="translate(55, 55) scale(1.18)">
+    <path d="M28 130 L28 62 Q28 48 40 44 L60 38 Q66 34 76 34 L128 34 Q138 34 144 42 L150 58 L150 130 Z" fill="#E8F4FB" stroke="#2E7FB8" stroke-width="1.8" stroke-linejoin="round"/>
+    <path d="M76 34 Q112 22 148 28 L148 36 Q112 30 76 42 Z" fill="#D0EAF7" stroke="#2E7FB8" stroke-width="1"/>
+    <path d="M34 66 L34 98 L88 98 L88 58 Q86 50 78 50 L46 53 Q37 56 34 66 Z" fill="#C5E0F2" stroke="#2E7FB8" stroke-width="1.4"/>
+    <line x1="60" y1="50" x2="60" y2="98" stroke="#2E7FB8" stroke-width="0.9"/>
+    <path d="M32 66 L32 100 L90 100 L90 57 Q88 48 78 48 L45 51 Q35 54 32 66 Z" fill="none" stroke="#2E7FB8" stroke-width="2.2"/>
+    <path d="M28 63 L28 78 L42 78 L48 66 L42 60 Z" fill="#D8EEFA" stroke="#2E7FB8" stroke-width="1"/>
+    <line x1="28" y1="82" x2="48" y2="82" stroke="#2E7FB8" stroke-width="2" stroke-linecap="round"/>
+    <path d="M28 100 L16 104 L16 130 L28 130 Z" fill="#D0EAF7" stroke="#2E7FB8" stroke-width="1.2"/>
+    <rect x="19" y="108" width="9" height="3" rx="1" fill="#2E7FB8"/>
+    <rect x="19" y="114" width="9" height="3" rx="1" fill="#2E7FB8"/>
+    <rect x="19" y="120" width="9" height="3" rx="1" fill="#2E7FB8"/>
+    <rect x="16" y="50" width="13" height="20" rx="3" fill="#D0EAF7" stroke="#2E7FB8" stroke-width="1.2"/>
+    <line x1="29" y1="55" x2="32" y2="53" stroke="#2E7FB8" stroke-width="1.2"/>
+    <line x1="29" y1="66" x2="32" y2="68" stroke="#2E7FB8" stroke-width="1.2"/>
+    <rect x="94" y="48" width="54" height="74" rx="3" fill="#E0F0FA" stroke="#2E7FB8" stroke-width="1"/>
+    <line x1="94" y1="78" x2="148" y2="78" stroke="#2E7FB8" stroke-width="0.8"/>
+    <rect x="142" y="90" width="8" height="5" rx="2" fill="#2E7FB8"/>
+    <rect x="28" y="130" width="240" height="8" rx="2" fill="#1A5F8A"/>
+    <rect x="152" y="116" width="90" height="16" rx="3" fill="#D0EAF7" stroke="#2E7FB8" stroke-width="1"/>
+    <rect x="178" y="110" width="40" height="10" rx="3" fill="#2E7FB8"/>
+    <path d="M40 130 Q62 122 86 130" fill="none" stroke="#2E7FB8" stroke-width="2.5"/>
+    <circle cx="62" cy="158" r="24" fill="#1A5F8A"/>
+    <circle cx="62" cy="158" r="16" fill="#FFFFFF"/>
+    <circle cx="62" cy="158" r="7" fill="#1A5F8A"/>
+    <line x1="62" y1="142" x2="62" y2="174" stroke="#1A5F8A" stroke-width="1.4"/>
+    <line x1="46" y1="158" x2="78" y2="158" stroke="#1A5F8A" stroke-width="1.4"/>
+    <line x1="51" y1="147" x2="73" y2="169" stroke="#1A5F8A" stroke-width="1"/>
+    <line x1="73" y1="147" x2="51" y2="169" stroke="#1A5F8A" stroke-width="1"/>
+    <path d="M186 130 Q208 122 242 130" fill="none" stroke="#2E7FB8" stroke-width="2.5"/>
+    <circle cx="196" cy="158" r="24" fill="#1A5F8A"/>
+    <circle cx="196" cy="158" r="16" fill="#FFFFFF"/>
+    <circle cx="196" cy="158" r="7" fill="#1A5F8A"/>
+    <line x1="196" y1="142" x2="196" y2="174" stroke="#1A5F8A" stroke-width="1.4"/>
+    <line x1="180" y1="158" x2="212" y2="158" stroke="#1A5F8A" stroke-width="1.4"/>
+    <line x1="185" y1="147" x2="207" y2="169" stroke="#1A5F8A" stroke-width="1"/>
+    <line x1="207" y1="147" x2="185" y2="169" stroke="#1A5F8A" stroke-width="1"/>
+    <circle cx="240" cy="158" r="22" fill="#1A5F8A"/>
+    <circle cx="240" cy="158" r="14" fill="#FFFFFF"/>
+    <circle cx="240" cy="158" r="6" fill="#1A5F8A"/>
+    <line x1="240" y1="144" x2="240" y2="172" stroke="#1A5F8A" stroke-width="1.2"/>
+    <line x1="226" y1="158" x2="254" y2="158" stroke="#1A5F8A" stroke-width="1.2"/>
+    <line x1="231" y1="149" x2="249" y2="167" stroke="#1A5F8A" stroke-width="0.9"/>
+    <line x1="249" y1="149" x2="231" y2="167" stroke="#1A5F8A" stroke-width="0.9"/>
+    <line x1="14" y1="92" x2="2" y2="92" stroke="#4BA3D0" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="14" y1="104" x2="0" y2="104" stroke="#4BA3D0" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="14" y1="115" x2="4" y2="115" stroke="#4BA3D0" stroke-width="1.2" stroke-linecap="round"/>
+  </g>
+  <!-- Texto Genesis debajo -->
+  <text x="200" y="358" font-family="Georgia, serif" font-size="38" font-weight="700" font-style="italic" fill="#2E7FB8" text-anchor="middle">Genesis</text>
+</svg>
