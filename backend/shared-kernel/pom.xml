@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.tms.appcliente</groupId>
+    <artifactId>api-cliente-transporte</artifactId>
+    <version>1.0.0</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>shared-kernel</artifactId>
+  <packaging>jar</packaging>
+  <name>Shared Kernel</name>
+  <description>
+    Núcleo transversal: envoltorio universal de respuestas REST, jerarquía de excepciones
+    de aplicación/dominio y contratos base (AggregateRoot, ValueObject). No contiene reglas
+    de negocio de ningún módulo; solo se depende de Spring Web para el ResponseBodyAdvice.
+  </description>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-annotations-jakarta</artifactId>
+      <version>2.2.47</version>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+</project>
+

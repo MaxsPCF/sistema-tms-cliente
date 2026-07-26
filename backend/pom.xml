@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.tms.appcliente</groupId>
+  <artifactId>api-cliente-transporte</artifactId>
+  <version>1.0.0</version>
+  <packaging>pom</packaging>
+  <name>App Cliente Transporte Carga Pesada :: Parent</name>
+  <description>
+    API REST modular (Hexagonal + DDD + CQRS) para el sistema de Transporte de Carga Pesada - Cliente.
+    Base de datos SQL Server 2025 compartida con una aplicación .NET 10 (ddl-auto=none).
+  </description>
+
+  <properties>
+    <java.version>25</java.version>
+    <maven.compiler.release>25</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <spring-boot.version>4.0.7</spring-boot.version>
+    <springdoc.version>3.0.3</springdoc.version>
+    <jjwt.version>0.12.6</jjwt.version>
+    <mssql-jdbc.version>12.8.1.jre11</mssql-jdbc.version>
+    <mapstruct.version>1.6.3</mapstruct.version>
+    <bucket4j.version>8.14.0</bucket4j.version>
+  </properties>
+
+  <!--
+     Orden de módulos = orden de dependencia arquitectónica (Hexagonal):
+     domain -> application -> infrastructure. shared-kernel es el núcleo transversal
+     (contratos de respuesta, excepciones base, utilidades de dominio) sin ninguna
+     regla de negocio. bootstrap-api es el único módulo "impuro": composition root
+     que ensambla los adaptadores y arranca Spring Boot.
+  -->
+  <modules>
+    <module>shared-kernel</module>
+
+    <module>seguridad/seguridad-domain</module>
+    <module>seguridad/seguridad-application</module>
+    <module>seguridad/seguridad-infrastructure</module>
+
+    <module>operaciones/operaciones-domain</module>
+    <module>operaciones/operaciones-application</module>
+    <module>operaciones/operaciones-infrastructure</module>
+
+    <module>bootstrap-api</module>
+  </modules>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <!-- Módulos internos -->
+      <dependency>
+        <groupId>com.tms.appcliente</groupId>
+        <artifactId>shared-kernel</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tms.appcliente</groupId>
+        <artifactId>seguridad-domain</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tms.appcliente</groupId>
+        <artifactId>seguridad-application</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tms.appcliente</groupId>
+        <artifactId>seguridad-infrastructure</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tms.appcliente</groupId>
+        <artifactId>operaciones-domain</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tms.appcliente</groupId>
+        <artifactId>operaciones-application</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tms.appcliente</groupId>
+        <artifactId>operaciones-infrastructure</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <!-- Terceros -->
+      <dependency>
+        <groupId>org.springdoc</groupId>
+        <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        <version>${springdoc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-api</artifactId>
+        <version>${jjwt.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-impl</artifactId>
+        <version>${jjwt.version}</version>
+        <scope>runtime</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-jackson</artifactId>
+        <version>${jjwt.version}</version>
+        <scope>runtime</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.microsoft.sqlserver</groupId>
+        <artifactId>mssql-jdbc</artifactId>
+        <version>${mssql-jdbc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.bucket4j</groupId>
+        <artifactId>bucket4j_jdk17-core</artifactId>
+        <version>${bucket4j.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <release>${maven.compiler.release}</release>
+            <parameters>true</parameters>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+</project>
+

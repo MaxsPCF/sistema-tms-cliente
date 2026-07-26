@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.tms.appcliente</groupId>
+    <artifactId>api-cliente-transporte</artifactId>
+    <version>1.0.0</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>seguridad-domain</artifactId>
+  <packaging>jar</packaging>
+  <name>Seguridad :: Domain</name>
+  <description>
+    Modelo de dominio puro del módulo de Seguridad: Usuario, Rol, Módulo y sus
+    invariantes. Deliberadamente NO depende de Spring, JPA ni ningún framework:
+    es el círculo interno de la arquitectura hexagonal.
+  </description>
+
+  <!--
+    Sin dependencias a propósito: shared-kernel arrastra spring-boot-starter-web
+    (lo necesita el ResponseBodyAdvice), y el dominio puro NO debe depender, ni
+    transitivamente, de ningún framework. Este módulo solo depende del JDK.
+  -->
+  <dependencies/>
+</project>
+

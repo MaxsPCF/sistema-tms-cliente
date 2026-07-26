@@ -1,0 +1,72 @@
+spring:
+  application:
+    name: api-cliente-transporte
+
+  datasource:
+    # Base de datos compartida con la app .NET 10 — este servicio NUNCA
+    # crea ni migra esquema (ver spring.jpa.hibernate.ddl-auto: none).
+    url: ${DB_URL:jdbc:sqlserver://localhost:1433;databaseName=TransporteCargaPesada;encrypt=false;trustServerCertificate=true}
+    username: ${DB_USERNAME:usr-desarrollo}
+    password: ${DB_PASSWORD:123456}
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.SQLServerDialect
+        format_sql: false
+        jdbc:
+          time_zone: UTC
+
+# ============================================
+# Server
+# ============================================
+server:
+  port: ${SERVER_PORT:7137}
+
+app:
+  security:
+    jwt:
+      # SIEMPRE por variable de entorno / secret manager — nunca hardcodear
+      # ni versionar en el repositorio (mitigación OWASP A02 - fallas criptográficas).
+      secret: ${JWT_SECRET:TMSClienteTransportesGenesisSuperSecretKey2026}
+      expiracion-minutos: ${JWT_EXPIRACION_MINUTOS:60}
+      emisor: api-cliente-transporte
+    rate-limit:
+      capacidad: ${RATE_LIMIT_CAPACIDAD:60}
+      refill-por-minuto: ${RATE_LIMIT_REFILL:60}
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operationsSorter: method
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # Solo lo estrictamente necesario para observabilidad; nunca /env o
+        # /heapdump expuestos sin protección adicional (mitigación OWASP A05).
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+
+logging:
+  level:
+    com.tms.appcliente: INFO
+    org.hibernate.SQL: WARN
+
