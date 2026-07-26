@@ -27,7 +27,14 @@ jobs:
      uses: actions/setup-java@v4
      with:
       distribution: "temurin"
-      java-version: "25"
+      java-version: "25.0.1"
+      check-latest: true
+
+   - name: Verify Java and Maven
+     run: |
+      java -version
+      javac -version
+      mvn -v
 
    - name: Build
      run: mvn -B -T1C -DskipTests verify -f backend/pom.xml
