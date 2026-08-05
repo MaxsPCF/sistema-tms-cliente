@@ -33,9 +33,20 @@ final class LoginResponseMapper {
 
     private static MenuNodoResponse aMenuResponse(MenuNodo n) {
         return new MenuNodoResponse(
-                n.idModulo(), n.idModuloPadre(), n.nombreModulo(), n.icono(), n.ruta(), n.orden(),
-                n.puedeVer(), n.puedeCrear(), n.puedeEditar(), n.puedeEliminar(), n.puedeAprobar(), n.puedeExportar(),
-                aMenusResponse(n.children()));
+                n.idModulo(),
+                n.idModuloPadre(),
+                n.nombreModulo(),
+                n.icono(),
+                n.ruta(),
+                n.orden(),
+                n.puedeVer(),
+                n.puedeCrear(),
+                n.puedeEditar(),
+                n.puedeEliminar(),
+                n.puedeAprobar(),
+                n.puedeExportar(),
+                aMenusResponse(n.children())
+        );
     }
 }
 

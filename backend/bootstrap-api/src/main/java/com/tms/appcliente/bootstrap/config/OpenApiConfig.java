@@ -29,23 +29,23 @@ public class OpenApiConfig {
                         .title("Transporte Carga Pesada - Cliente :: API")
                         .description("""
                                 API REST de Seguridad (JWT/RBAC) y Operaciones.
-                                ## 🏗️ Arquitectura
+                                ## Arquitectura
                                 - **Hexagonal** (Ports & Adapters) con separación limpia de capas
                                 - **DDD** (Domain-Driven Design) con Bounded Contexts
                                 - **CQRS** (Command Query Responsibility Segregation)
                                 - **Event-Driven** con Eventos de Dominio
                                 
-                                ## 📦 Módulos
+                                ## Módulos
                                 - **Seguridad**: Autenticación JWT, RBAC, Menús dinámicos tipo Composite
                                 - **Operaciones**: Solicitudes, Cotizaciones, Órdenes de servicio y de viaje
                                 
-                                ## ✨ Características
-                                - ✅ Compatible con .NET (BCrypt Enhanced Hashing SHA-384)
-                                - ✅ Rate Limiting y protección OWASP Top 10
-                                - ✅ Respuesta universal estandarizada
-                                - ✅ Paginación y ordenamiento unificados
+                                ## Características
+                                - Compatible con .NET (BCrypt Enhanced Hashing SHA-384)
+                                - Rate Limiting y protección OWASP Top 10
+                                - Respuesta universal estandarizada
+                                - Paginación y ordenamiento unificados
                                 
-                                ## 🔐 Seguridad
+                                ## Seguridad
                                 - JWT con refresh tokens
                                 - RBAC con permisos granulares (Ver, Crear, Editar, Eliminar, Aprobar, Exportar)
                                 - Bloqueo de cuenta por intentos fallidos

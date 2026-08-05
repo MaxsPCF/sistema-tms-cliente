@@ -18,7 +18,9 @@ import java.util.UUID;
  *   "success": true,
  *   "data": { ... },
  *   "message": "Mensaje informativo opcional",
- *   "errors": []
+ *   "errors": [],
+ *   "timestamp: "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+ *   "traceId": "Id"
  * }
  * </pre>
  */
