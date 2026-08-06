@@ -1,0 +1,207 @@
+# =============================================================================
+# Gitleaks Configuration - TMS-Cliente
+# =============================================================================
+# Documentación: https://github.com/gitleaks/gitleaks#configuration
+# Última actualización: 2026-08-05
+# NOTA: Los paths usan sintaxis regex de Go (RE2), no glob patterns
+# IMPORTANTE: RE2 no soporta lookaheads/lookbehinds
+# =============================================================================
+
+title = "TMS-Cliente Gitleaks Configuration"
+
+# =============================================================================
+# ALLOWLIST GLOBAL (Excepciones)
+# =============================================================================
+[allowlist]
+  description = "Archivos y patrones permitidos globalmente"
+
+  # ── Archivos excluidos del escaneo ──
+  paths = [
+    # Archivos Maven (no contienen secretos, son configuración de build)
+    '''pom\.xml$''',
+    '''\.mvn/.*''',
+    '''mvnw$''',
+    '''mvnw\.cmd$''',
+    
+    # Archivos de test
+    '''src/test/.*''',
+    '''__tests__/.*''',
+    '''\.test\..*''',
+    '''\.spec\..*''',
+    '''test/resources/.*''',
+    
+    # Documentación y ejemplos
+    '''\.md$''',
+    '''docs/.*''',
+    '''examples/.*''',
+    
+    # Dependencias y build
+    '''node_modules/.*''',
+    '''target/.*''',
+    '''dist/.*''',
+    '''build/.*''',
+    '''vendor/.*''',
+    '''package-lock\.json$''',
+    '''yarn\.lock$''',
+    
+    # Archivos de ejemplo/plantilla (incluye TODOS los .env.example)
+    '''\.env\.example$''',
+    '''\.env\.template$''',
+    '''\.env\.local$''',
+    '''\.env\.development$''',
+    '''\.env\.production$''',
+    '''application-example\.yml$''',
+    '''application-example\.properties$''',
+    
+    # Imágenes, fuentes y binarios
+    '''\.svg$''',
+    '''\.png$''',
+    '''\.jpg$''',
+    '''\.jpeg$''',
+    '''\.gif$''',
+    '''\.ico$''',
+    '''\.woff2?$''',
+    '''\.ttf$''',
+    '''\.eot$''',
+    
+    # Archivos de configuración IDE
+    '''\.idea/.*''',
+    '''\.vscode/.*''',
+    '''\.settings/.*''',
+    '''\.classpath$''',
+    '''\.project$'''
+  ]
+
+  # ── Patrones de ejemplo/documentación ──
+  regexes = [
+    "your[-_]secret[-_]key",
+    "YOUR_SECRET",
+    "your[-_]key[-_]here",
+    "example[-_]key",
+    "your[-_]api[-_]key",
+    "http://localhost",
+    "springframework",
+    "spring[-_]boot",
+    "modelVersion",
+    "xmlns"
+  ]
+
+  # ── Stopwords que indican datos de prueba/ejemplo ──
+  stopwords = [
+    "example",
+    "sample",
+    "test",
+    "demo",
+    "fake",
+    "mock",
+    "dummy",
+    "placeholder",
+    "template",
+    "development-only",
+    "dev-only",
+    "artifactid",
+    "groupid",
+    "modelversion",
+    "xmlns",
+    "xsi:schemaLocation",
+    "springframework.org"
+  ]
+
+# =============================================================================
+# REGLAS PERSONALIZADAS
+# =============================================================================
+
+# ── Regla 1: API Keys internas del proyecto ──
+[[rules]]
+  id = "tms-api-key"
+  description = "API Key hardcodeada en código fuente Java/TypeScript"
+  path = '''\.(java|ts|tsx)$'''
+  regex = '''(?i)(api[_-]?key|secret[_-]?key|access[_-]?token)\s*[=:]\s*['"][A-Za-z0-9+/=]{20,}['"]'''
+  tags = ["api-key", "tms", "custom"]
+
+# ── Regla 2: Cadenas de conexión JDBC con credenciales ──
+[[rules]]
+  id = "jdbc-connection-string"
+  description = "JDBC Connection String con password expuesto"
+  path = '''\.(java|properties|yml|yaml|xml)$'''
+  regex = '''jdbc:[a-z]+://[^/\s]+(/[^\s?]+)?\?[^\s]*password=[^\s&]+'''
+  tags = ["database", "connection-string", "jdbc"]
+
+# ── Regla 3: Password de Spring datasource ──
+[[rules]]
+  id = "spring-datasource-password"
+  description = "Spring datasource password en archivos de configuración"
+  path = '''\.(properties|yml|yaml)$'''
+  regex = '''(?i)(spring\.datasource\.password|database\.password|db\.password)\s*[=:]\s*[^\s]{3,}'''
+  tags = ["spring", "database", "password"]
+
+# ── Regla 4: Variables de entorno con secretos ──
+[[rules]]
+  id = "hardcoded-env-secrets"
+  description = "Secretos en variables de entorno hardcodeadas"
+  path = '''\.env$'''
+  regex = '''(?i)(SECRET|PASSWORD|TOKEN|API_KEY)\s*=\s*[^\s]{8,}'''
+  tags = ["env", "secret", "hardcoded"]
+
+# ── Regla 5: Private keys PEM ──
+[[rules]]
+  id = "private-key-pem"
+  description = "Llave privada en formato PEM"
+  path = '''\.(java|ts|tsx|js|jsx|properties|yml|yaml|pem|key|p12|pfx)$'''
+  regex = '''-----BEGIN\s+(RSA|OPENSSH|EC|DSA|PGP)\s+PRIVATE\s+KEY'''
+  tags = ["crypto", "private-key", "pem"]
+
+# ── Regla 6: JWT Tokens hardcodeados ──
+[[rules]]
+  id = "jwt-token"
+  description = "JWT Token hardcodeado en código fuente"
+  path = '''\.(java|ts|tsx|js|jsx)$'''
+  regex = '''eyJ[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}'''
+  tags = ["jwt", "token", "authentication"]
+
+# ── Regla 7: Bearer tokens en código ──
+[[rules]]
+  id = "bearer-token"
+  description = "Bearer token hardcodeado"
+  path = '''\.(java|ts|tsx|js|jsx)$'''
+  regex = '''(?i)bearer\s+[a-zA-Z0-9\-_=]+\.[a-zA-Z0-9\-_=]+\.?[a-zA-Z0-9\-_=]*'''
+  tags = ["token", "authentication", "bearer"]
+
+# ── Regla 8: Variables VITE_ con secretos (SOLO archivo .env exacto) ──
+[[rules]]
+  id = "vite-env-secret"
+  description = "Variables de entorno VITE_ con posibles secretos"
+  path = '''\.env$'''
+  regex = '''(?i)VITE_(SECRET|PASSWORD|TOKEN|KEY)\s*=\s*[^\s]{6,}'''
+  tags = ["env", "react", "vite"]
+
+# ── Regla 9: OAuth2 client secrets ──
+[[rules]]
+  id = "oauth2-client-secret"
+  description = "OAuth2 client secret expuesto"
+  path = '''\.(properties|yml|yaml|java|ts|tsx)$'''
+  regex = '''(?i)(oauth2?|oidc)\.client\.secret\s*[=:]\s*[^\s]{6,}'''
+  tags = ["oauth", "authentication", "secret"]
+
+# ── Regla 10: Stripe API keys ──
+[[rules]]
+  id = "stripe-api-key"
+  description = "Stripe API key expuesta"
+  regex = '''(?i)(sk|pk)_(test|live)_[a-zA-Z0-9]{24,}'''
+  tags = ["payment", "stripe", "api-key"]
+
+# ── Regla 11: JWT Secret key ──
+[[rules]]
+  id = "jwt-secret-key"
+  description = "JWT Secret/Signing key hardcodeada"
+  path = '''\.(java|ts|tsx|properties|yml|yaml)$'''
+  regex = '''(?i)(jwt\.secret|jwt\.signing|secret\.key|signing\.key)\s*[=:]\s*['"]?[A-Za-z0-9+/=]{20,}['"]?'''
+  tags = ["jwt", "secret", "authentication"]
+
+# ── Regla 12: HTTP Basic Auth en URLs ──
+[[rules]]
+  id = "url-with-basic-auth"
+  description = "URL con credenciales de autenticación básica"
+  path = '''\.(java|ts|tsx|js|jsx|properties|yml|yaml|sh)$'''
+  regex = '''https?://[^:]+:[^@]+@[^\s]+'''
+  tags = ["url", "authentication", "basic-auth"]

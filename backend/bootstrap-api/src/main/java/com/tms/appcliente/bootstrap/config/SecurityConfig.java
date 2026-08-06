@@ -23,20 +23,20 @@ import java.util.List;
  * único SecurityFilterChain los endpoints públicos y protegidos de AMBOS
  * módulos de negocio, ya que esa decisión (qué es público/privado) es una
  * responsabilidad de la aplicación completa, no de un módulo aislado.
- *
+ * <p>
  * Decisiones de diseño / mitigaciones OWASP:
- *  - STATELESS (sin JSESSIONID): elimina fijación/robo de sesión (A01, A07).
- *  - CSRF deshabilitado: solo es necesario para autenticación basada en
- *    cookies; con Bearer JWT en header no aplica (no hay cookie que un sitio
- *    malicioso pueda "arrastrar" automáticamente).
- *  - RateLimitingFilter ANTES de la autenticación: corta fuerza bruta antes
- *    de gastar ciclos de verificación de contraseña (A07).
- *  - JwtAuthenticationFilter ANTES de UsernamePasswordAuthenticationFilter:
- *    puebla el SecurityContext por token en cada request (A07).
- *  - @EnableMethodSecurity + @PreAuthorize en los controladores: RBAC
- *    declarativo y auditable en el punto de uso (A01 - Broken Access Control).
- *  - Cabeceras de seguridad explícitas: HSTS, X-Content-Type-Options,
- *    frameOptions DENY (A05 - Security Misconfiguration).
+ * - STATELESS (sin JSESSIONID): elimina fijación/robo de sesión (A01, A07).
+ * - CSRF deshabilitado: solo es necesario para autenticación basada en
+ * cookies; con Bearer JWT en header no aplica (no hay cookie que un sitio
+ * malicioso pueda "arrastrar" automáticamente).
+ * - RateLimitingFilter ANTES de la autenticación: corta fuerza bruta antes
+ * de gastar ciclos de verificación de contraseña (A07).
+ * - JwtAuthenticationFilter ANTES de UsernamePasswordAuthenticationFilter:
+ * puebla el SecurityContext por token en cada request (A07).
+ * - @EnableMethodSecurity + @PreAuthorize en los controladores: RBAC
+ * declarativo y auditable en el punto de uso (A01 - Broken Access Control).
+ * - Cabeceras de seguridad explícitas: HSTS, X-Content-Type-Options,
+ * frameOptions DENY (A05 - Security Misconfiguration).
  */
 @Configuration
 @EnableMethodSecurity
@@ -53,10 +53,10 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                     JwtAuthenticationFilter jwtAuthenticationFilter,
-                                                     RateLimitingFilter rateLimitingFilter,
-                                                     JsonAuthenticationEntryPoint authenticationEntryPoint,
-                                                     JsonAccessDeniedHandler accessDeniedHandler) throws Exception {
+                                                   JwtAuthenticationFilter jwtAuthenticationFilter,
+                                                   RateLimitingFilter rateLimitingFilter,
+                                                   JsonAuthenticationEntryPoint authenticationEntryPoint,
+                                                   JsonAccessDeniedHandler accessDeniedHandler) throws Exception {
         http
                 .csrf(csrf -> csrf.disable()) // Bearer JWT stateless: sin cookies, sin CSRF aplicable.
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -69,7 +69,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
-                        .contentTypeOptions(contentTypeOptions -> {})
+                        .contentTypeOptions(contentTypeOptions -> {
+                        })
                         .httpStrictTransportSecurity(hsts -> hsts
                                 .includeSubDomains(true)
                                 .maxAgeInSeconds(31536000)))
@@ -88,8 +89,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("https://app.genesis.com", "https://admin.genesis.com"));
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:5173",
+                // "http://localhost:3000",
+                "https://app.tms-cliente-transporte.com"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);

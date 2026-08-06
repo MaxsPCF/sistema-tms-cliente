@@ -1,45 +1,178 @@
 name: Code Quality - TMS-Cliente
+
 on:
- push:
-  branches: [main, master]
-  paths:
-   - "backend/**"
- pull_request:
-  branches: [main, master]
-  paths:
-   - "backend/**"
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+# Evita ejecuciones duplicadas cuando se hace push a un PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
- backend-quality:
-  name: Backend Java Code Quality
-  runs-on: ubuntu-latest
-  steps:
-   - uses: actions/checkout@v4
+  # ============================================================
+  # BACKEND Java 25
+  # ============================================================
+  backend-quality:
+    name: Backend Java 25 Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
 
-   - name: Set up JDK 25
-     uses: actions/setup-java@v4
-     with:
-      distribution: "temurin"
-      java-version: "25.0.1"
-      check-latest: true
-      cache: "maven"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-   - name: Verify Java and Maven
-     run: |
-      java -version
-      javac -version
-      mvn -v
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "25.0.1"
+          check-latest: true
+          cache: "maven"
 
-   - name: Cache Maven repository
-     uses: actions/cache@v4
-     with:
-      path: ~/.m2/repository
-      key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-      restore-keys: |
-       ${{ runner.os }}-m2-
+      - name: Verify environment
+        run: |
+          echo "=== Java Version ==="
+          java -version
+          echo "=== Maven Version ==="
+          mvn -v
 
-   - name: Build (verify)
-     run: mvn -B -T1C -DskipTests verify -f backend/pom.xml
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('backend/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
 
-  #  - name: Run tests
-  #    run: mvn -B -T1C test -f backend/pom.xml
+      # Maven en modo check: solo compila, sin generar JAR final
+      # Más rápido que verify porque omite fases post-compilación
+      - name: Compile Backend
+        run: mvn -B -T1C compile -f backend/pom.xml
+
+      # Checkstyle o PMD si lo configuras a futuro
+      # - name: Code Style Check
+      #   run: mvn checkstyle:check -f backend/pom.xml
+
+      # Tests unitarios (descomentar cuando los tengas)
+      # - name: Unit Tests
+      #   run: mvn -B test -f backend/pom.xml
+
+      - name: Build Status
+        run: echo "✅ Backend compilation successful"
+
+  # ============================================================
+  # FRONTEND React/Vite
+  # ============================================================
+  frontend-quality:
+    name: Frontend React/Vite Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Verify environment
+        run: |
+          echo "=== Node Version ==="
+          node -v
+          echo "=== NPM Version ==="
+          npm -v
+
+      # npm ci es más estricto y rápido que npm install para CI
+      - name: Install dependencies
+        run: npm ci
+
+      # ESLint - Falla si hay errores
+      - name: Lint Check
+        run: npm run lint
+
+      # TypeScript type-check (si usas TS)
+      # - name: Type Check
+      #   run: npx tsc --noEmit
+
+      - name: Build Frontend
+        run: npm run build
+
+      # Tests unitarios (descomentar cuando los tengas)
+      # - name: Unit Tests
+      #   run: npm run test -- --watch=false
+
+      - name: Build Status
+        run: echo "✅ Frontend build successful"
+
+  # ============================================================
+  # VALIDACIONES GENERALES DEL PROYECTO
+  # ============================================================
+  project-standards:
+    name: Project Standards Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate project structure
+        run: |
+          echo "Validando estructura del proyecto..."
+
+          # Archivos raíz requeridos
+          test -f README.md || (echo "  FALTA: README.md" && exit 1)
+          test -f .gitignore || (echo "  FALTA: .gitignore" && exit 1)
+
+          # Directorios principales
+          test -d backend || (echo "  FALTA: directorio backend/" && exit 1)
+          test -d frontend || (echo "  FALTA: directorio frontend/" && exit 1)
+
+          # GitHub templates (si existen)
+          if [ -d .github ]; then
+            echo " .github directory found"
+            test -f .github/pull_request_template.md || echo "Info: No PR template (opcional)"
+          fi
+
+          echo "Estructura del proyecto validada"
+
+      - name: Check for sensitive files
+        run: |
+          echo "Verificando archivos sensibles..."
+
+          # No debe haber .env commiteados (solo .env.example)
+          ENV_FILES=$(find . -name ".env" -not -name ".env.example" -not -path "./.git/*" -not -path "*/node_modules/*" 2>/dev/null)
+
+          if [ -n "$ENV_FILES" ]; then
+            echo "ERROR: Se encontraron archivos .env con posibles secretos:"
+            echo "$ENV_FILES"
+            echo "Estos archivos NO deben committearse. Usa .env.example como plantilla."
+            exit 1
+          fi
+
+          # Verificar que no haya archivos grandes (>5MB) fuera de lo esperado
+          LARGE_FILES=$(find . -type f -size +5M -not -path "./.git/*" -not -path "*/node_modules/*" -not -path "*/.m2/*" 2>/dev/null)
+          if [ -n "$LARGE_FILES" ]; then
+            echo "Advertencia: Archivos grandes detectados:"
+            echo "$LARGE_FILES"
+          fi
+
+          echo "Sin archivos sensibles expuestos"
+
+      - name: Quality Gate Status
+        run: |
+          echo "Quality Gate: PASSED"
+          echo "Todas las validaciones de calidad completadas exitosamente"

@@ -17,8 +17,8 @@ public class RolRepositoryAdapter implements RolRepository {
     }
 
     @Override
-    public List<Rol> buscarRolesActivosDeUsuario(UUID idUsuario) {
-        return jpaRepository.buscarRolesActivosDeUsuario(idUsuario).stream()
+    public List<Rol> buscarRolesActivosDeUsuarioPorAplicacion(UUID idUsuario, String codigoAplicacion) {
+        return jpaRepository.buscarRolesActivosDeUsuarioPorAplicacion(idUsuario, codigoAplicacion).stream()
                 .map(r -> new Rol(r.getIdRol(), r.getIdAplicacion(), r.getNombreRol(),
                         Boolean.TRUE.equals(r.getEsAdmin()), Boolean.TRUE.equals(r.getActivo())))
                 .toList();

@@ -14,6 +14,7 @@ import com.tms.appcliente.seguridad.domain.model.Usuario;
 import com.tms.appcliente.seguridad.domain.port.out.MenuRepository;
 import com.tms.appcliente.seguridad.domain.port.out.RolRepository;
 import com.tms.appcliente.seguridad.domain.port.out.UsuarioRepository;
+import com.tms.appcliente.shared.exception.AccesoNoAutorizadoException;
 import com.tms.appcliente.shared.exception.CredencialesInvalidasException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,7 +77,12 @@ public class AutenticarUsuarioService implements AutenticarUsuarioUseCase {
         usuario.registrarAccesoExitoso(Instant.now());
         usuarioRepository.guardar(usuario);
 
-        List<Rol> roles = rolRepository.buscarRolesActivosDeUsuario(usuario.idUsuario());
+        List<Rol> roles = rolRepository.buscarRolesActivosDeUsuarioPorAplicacion(
+                usuario.idUsuario(), command.codigoAplicacion());
+        if (roles.isEmpty()) {
+            throw new AccesoNoAutorizadoException(
+                    "El usuario no tiene acceso habilitado a este canal.");
+        }
         List<Integer> idsRoles = roles.stream().map(Rol::idRol).toList();
 
         List<Modulo> arbolModulos = menuRepository.buscarArbolModulosPorAplicacion(command.codigoAplicacion());

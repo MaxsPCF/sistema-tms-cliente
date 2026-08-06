@@ -12,12 +12,15 @@ public interface RolJpaRepository extends JpaRepository<RolJpaEntity, Integer> {
 
     @Query("""
             select r from RolJpaEntity r
+            join AplicacionJpaEntity a on a.idAplicacion = r.idAplicacion
             where r.activo = true
+              and a.codigo = :codigoAplicacion
               and r.idRol in (
                   select ur.idRol from UsuarioRolJpaEntity ur
                   where ur.idUsuario = :idUsuario and ur.activo = true
               )
             """)
-    List<RolJpaEntity> buscarRolesActivosDeUsuario(@Param("idUsuario") UUID idUsuario);
+    List<RolJpaEntity> buscarRolesActivosDeUsuarioPorAplicacion(@Param("idUsuario") UUID idUsuario,
+                                                                @Param("codigoAplicacion") String codigoAplicacion);
 }
 

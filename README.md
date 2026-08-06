@@ -1,3 +1,7 @@
+# Backend
+
+---
+
 # TMS-Cliente - Transporte Carga Pesada :: API REST
 
 Arquitectura de referencia: **Hexagonal (Ports & Adapters) + DDD + CQRS**, Java 25,
@@ -141,3 +145,110 @@ Swagger UI: `http://localhost:7137/swagger-ui.html`
 - Sustituir el backend de rate limiting por uno distribuido si hay más de una instancia.
 - Tests: unitarios de dominio (sin Spring), de integración con Testcontainers (SQL Server),
   y contractuales del endpoint de login contra el JSON exacto del requerimiento C.
+
+---
+
+---
+
+# Frontend
+
+---
+
+# TMS-Cliente - Transporte Carga Pesada :: (TypeScript) — Login + Layout
+
+Migración a **TypeScript** del portal de clientes, construida **módulo por módulo** contra el contrato real del
+backend (.NET + MediatR). Esta primera entrega cubre: **Login** y **Layout** (Header + Sidebar dinámico + Content).
+
+---
+
+## ⚠️ Supuestos que debes validar contra tu backend
+
+1. **Casing JSON = camelCase.** Tu backend serializa DTOs en PascalCase en C# (`Email`, `IdUsuario`, `PuedeVer`...),
+   pero por defecto `System.Text.Json` en ASP.NET Core convierte a **camelCase** en el JSON de salida
+   (`email`, `idUsuario`, `puedeVer`...), y el model binding de entrada es case-insensitive. Todos los tipos en
+   `src/types/auth.types.ts` asumen camelCase. **Si tu backend tiene `PropertyNamingPolicy = null`** (mantiene
+   PascalCase), avísame y ajusto los tipos y el `apiClient`.
+2. **Endpoint real**: `POST {VITE_API_BASE_URL}/Authenticate/login`, deducido de
+   `[Route("api/v1/[controller]")]` sobre `AuthenticateController`.
+3. **Expiración de sesión**: uso el campo `expiracion` (fecha ISO) para invalidar la sesión guardada en
+   `localStorage` sin esperar un 401 del servidor. Si el backend maneja refresh token, aún no está implementado
+   (dime si lo necesitas y lo agrego).
+
+Mientras no conectes el backend real, deja `VITE_USE_MOCK_API=true`: el `authService` simula la **misma forma exacta**
+de respuesta (`ApiResponse<LoginResponseDto>`) que tu backend, incluyendo un árbol de menús de ejemplo con 6 módulos
+(Inicio, Solicitudes, Cotizaciones, Órdenes, Viajes y un grupo "Administración > Usuarios") para que puedas validar
+el Sidebar dinámico y sus permisos.
+
+## 🗂️ Contrato tipado (`src/types/`)
+
+- `api-response.types.ts` → réplica exacta de `ApiResponse<T>`.
+- `auth.types.ts` → réplica exacta de `LoginRequestDto`, `LoginResponseDto`, `UsuarioInfoDto`,
+  `AccesoPermisoModuloDto` (con su árbol recursivo `children`).
+
+Estos tipos son la **fuente de verdad** del contrato backend↔frontend. Cuando compartas los DTOs de Solicitud,
+Cotización, Orden, Viaje y Usuario, seguiremos el mismo patrón: un archivo `types/<modulo>.types.ts` que refleja el
+DTO 1:1.
+
+## 🧩 Sidebar dinámico dirigido por permisos
+
+El menú **ya no es una constante estática**: se construye en tiempo real a partir de `LoginResponseDto.Menus`, que
+llega en el login y se guarda en Redux (`auth.menus`) + `localStorage`.
+
+- `layouts/Sidebar.tsx` recorre `menus` (ordenados por `orden`) y renderiza `NavMenuItem` por cada uno.
+- `layouts/NavMenuItem.tsx` es **recursivo**: si un módulo tiene `children`, se muestra como grupo desplegable
+  (ej. "Administración"); si no tiene `ruta`, actúa solo como agrupador (no navega).
+- Un módulo con `puedeVer: false` **no se renderiza** (los permisos de creación/edición/eliminación/aprobación/
+  exportación se usarán más adelante para mostrar/ocultar botones dentro de cada módulo — ver `usePermission`).
+- `utils/resolveIcon.ts` mapea el string `icono` del backend (ej. `"Truck"`) a un componente de Lucide, usando un
+  **mapa curado** (no el catálogo completo) para no romper el tree-shaking. Si el backend agrega un ícono nuevo que
+  no está en el mapa, cae a un ícono de respaldo (`CircleDot`) y basta con importarlo y añadirlo a `ICON_MAP`.
+
+## 🔐 Flujo de autenticación
+
+- `services/authService.ts` → `login()` llama a `POST /Authenticate/login`, desenvuelve `ApiResponse<T>`, valida
+  `success`, y persiste `token`, `expiracion`, `usuario` y `menus` en `localStorage`.
+- `context/authSlice.ts` (Redux Toolkit) → `loginThunk` tipado con `createAsyncThunk<LoginResponseDto, LoginRequestDto>`.
+- `hooks/useAuth.ts` → hook de conveniencia (usuario, menús, login, logout, estado de carga/error).
+- `hooks/usePermission.ts` → dado un `ruta`, busca el módulo en el árbol de menús y devuelve sus 6 flags de permiso;
+  listo para usarse en los próximos módulos (ej. ocultar el botón "Nueva solicitud" si `puedeCrear` es `false`).
+- `routes/ProtectedRoute.tsx` / `PublicRoute.tsx` → guardas de ruta según `isAuthenticated`.
+
+## 📁 Estructura
+
+```
+src/
+├── types/               # Contratos 1:1 con los DTOs del backend
+├── services/            # apiClient.ts (axios + interceptores JWT), authService.ts
+├── context/              # store.ts, authSlice.ts, uiSlice.ts (Redux Toolkit)
+├── hooks/                 # useAuth, usePermission, useAppRedux (hooks tipados)
+├── layouts/                # MainLayout, AuthLayout, Header, Sidebar, NavMenuItem (recursivo)
+├── routes/                  # AppRouter, ProtectedRoute, PublicRoute
+├── pages/
+│   ├── auth/                 # LoginPage (funcional) · RegisterPage (placeholder, pendiente de contrato)
+│   └── dashboard/               # DashboardPage (muestra el árbol de menús/permisos recibido, temporal)
+├── components/atoms/              # Button, Input, Card, Badge, Spinner
+└── utils/                           # cn.ts, formatters.ts, resolveIcon.ts
+```
+
+## ⚙️ Instalación
+
+```bash
+npm install
+cp .env.example .env
+npm run dev      # http://localhost:5173
+npm run build    # type-check (tsc -b) + build de producción
+```
+
+Login demo (modo mock): cualquier correo válido + contraseña de 6+ caracteres.
+
+## 🔜 Próximos pasos (módulo por módulo)
+
+1. ~~Login + Layout~~ ✅ (esta entrega)
+2. Módulo **Usuarios**
+3. Módulo **Solicitudes**
+4. Módulo **Cotizaciones**
+5. Módulo **Órdenes**
+6. Módulo **Viajes**
+
+Para cada módulo necesito los DTOs del backend (request/response) igual que compartiste para login, así los tipos
+quedan exactos y no hay que adivinar formas de datos.
